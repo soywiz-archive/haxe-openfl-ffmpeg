@@ -288,3 +288,4 @@ DEFINE_FUNC_0(hx_ffmpeg_close_file)
 	//val_call1(vv);
 	return alloc_null();
 }
+

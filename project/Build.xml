@@ -54,6 +54,16 @@
 	<lib name="libswscale.a" if="windows"/>
 	<lib name="Advapi32.lib" if="windows"/>
 	
+	<flag value="-L../libs/Android" if="android"/>
+	<lib name="-lavformat" if="android"/>
+	<lib name="-lavcodec" if="android"/>
+	<lib name="-lavdevice" if="android"/>
+	<lib name="-lavfilter" if="android"/>
+	<lib name="-lavutil" if="android"/>
+	<!--<lib name="-liconv" if="android"/>-->
+	<lib name="-lswresample" if="android"/>
+	<lib name="-lswscale" if="android"/>
+	<lib name="-lz" if="android"/>
 
 	<flag value="-L../libs/Linux" if="linux"/>
 	<lib name="-liconv" if="linux"/>
