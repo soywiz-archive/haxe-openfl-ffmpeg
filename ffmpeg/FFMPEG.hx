@@ -42,8 +42,9 @@ class FFMPEG
 	private var soundBuffer:ConsumerProducerBuffer<Float>;
 	private var completed:Bool;
 	private var onComplete:Void -> Void;
+	private var onFrame:Void -> Void;
 
-	public function openAndPlay(fileName:String, onComplete:Void -> Void = null):Void
+	public function openAndPlay(fileName:String, onComplete:Void -> Void = null, onFrame:Void -> Void = null):Void
 	{
 		if (bitmapData != null) dispose();
 
@@ -56,6 +57,7 @@ class FFMPEG
 		this.sound = new Sound();
 		this.soundBuffer = new ConsumerProducerBuffer<Float>();
 		this.onComplete = onComplete;
+		this.onFrame = onFrame;
 
 		this.sound.addEventListener(SampleDataEvent.SAMPLE_DATA, generateSound);
 		this.soundChannel = this.sound.play();
@@ -63,6 +65,16 @@ class FFMPEG
 		var timer = new Timer(1000 / 30);
 		timer.run = function() {
 			decode_frame();
+			if (onFrame != null)
+			{
+				onFrame();
+			}
+
+			if (completed && onComplete != null)
+			{
+				onComplete();
+			}
+
 			if (completed) {
 				timer.stop();
 				dispose();
@@ -75,7 +87,7 @@ class FFMPEG
 		hx_ffmpeg_close_file();
 		this.bitmapData = null;
 		this.buffer = null;
-		if (this.soundChannel)
+		if (this.soundChannel != null)
 		{
 			this.soundChannel.stop();
 			this.soundChannel = null;
@@ -107,10 +119,6 @@ class FFMPEG
 		bitmapData.setPixels(bitmapData.rect, buffer);
 		bitmapData.unlock();
 
-		if (this.completed && onComplete != null) {
-			onComplete();
-		}
-
 		return this;
 	}
 
@@ -123,6 +131,17 @@ class FFMPEG
 		return byteArray;
 	}
 
+	private function emit_sound(channel:BytesData)
+	{
+		var channelByteArray = getByteArrayFromBytesData(channel);
+		while (channelByteArray.bytesAvailable > 0)
+		{
+			soundBuffer.write(channelByteArray.readFloat());
+		}
+		//Log.trace('${channel.length}');
+	}
+
+	/*
 	private function emit_sound(channels:Array<BytesData>)
 	{
 		var nsamples = Std.int(channels[0].length / 2);
@@ -138,6 +157,7 @@ class FFMPEG
 			soundBuffer.write(r);
 		}
 	}
+	*/
 
 	private static var hx_ffmpeg_get_version = Lib.load("openfl-ffmpeg", "hx_ffmpeg_get_version", 0);
 	private static var hx_ffmpeg_open_file = Lib.load("openfl-ffmpeg", "hx_ffmpeg_open_file", 1);

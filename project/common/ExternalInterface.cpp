@@ -172,23 +172,25 @@ int __fmpeg_decode_frame(FfmpegContext *context, char *output_ptr, int output_le
 				__fmpeg_copy_frame_to_pointer(context->pFrameRGB, context->videoCodecContext->width, context->videoCodecContext->height, output_ptr, output_len);
 				generated_frame = 1;
 			}
-		} else if (packet.stream_index == context->audioStream) {
+		}
+		else if (packet.stream_index == context->audioStream) {
 			static AVFrame audioFrame;
 			int got_frame = 0;
 			int len1 = avcodec_decode_audio4(context->audioCodecContext, &audioFrame, &got_frame, &packet);
-
+        
 			if (got_frame)
 			{
 			
 				// frame_size
 				
 				//printf("%d, %d, %d\n", context->audioCodecContext->sample_rate, context->audioCodecContext->channels, context->audioCodecContext->sample_fmt);
-
+        
 				int in_nchannels = context->audioCodecContext->channels;
 				int in_nsamples = audioFrame.nb_samples;
 				AVSampleFormat in_sample_format = context->audioCodecContext->sample_fmt;
 				int in_channel_layout = context->audioCodecContext->channel_layout;
 				
+				/*
 				int in_size = av_samples_get_buffer_size(NULL, in_nchannels, in_nsamples, in_sample_format, 1);
 				int out_size = in_size / in_nchannels;
 				
@@ -198,30 +200,36 @@ int __fmpeg_decode_frame(FfmpegContext *context, char *output_ptr, int output_le
 					memcpy((uint8_t *)buffer_data(out_buffer), audioFrame.data[n], out_size);
 					val_array_push(array, buffer_val(out_buffer));
 				}
-
-			/*
-				SwrContext *swr = swr_alloc_set_opts(
-					NULL,
-					AV_CH_LAYOUT_STEREO, AV_SAMPLE_FMT_FLT, 44100,
-					context->audioCodecContext->channel_layout, context->audioCodecContext->sample_fmt, context->audioCodecContext->sample_rate,
-					0, NULL
-				);
-
-				int in_size = av_samples_get_buffer_size(NULL, in_nchannels, in_nsamples, in_sample_format, 1);
-				int out_size = av_samples_get_buffer_size(NULL, in_nchannels, in_nsamples, AV_SAMPLE_FMT_FLT, 1);
-				
-				buffer sound_buffer = alloc_buffer_len(out_size * 10);
-				
-				uint8_t *out = (uint8_t *)buffer_data(sound_buffer);
-				
-				//const uint8_t *in = (uint8_t *)audioFrame.data[0];
-				
-				//swr_convert(swr, &out, nsamples / 10, (const uint8_t **)audioFrame.data, nsamples);
-				
-				swr_free(&swr);
+				val_call1(emit_sound_callback, array);
 				*/
 
-				val_call1(emit_sound_callback, array);
+				{
+					SwrContext *swr = swr_alloc_set_opts(
+						NULL,
+						AV_CH_LAYOUT_STEREO, AV_SAMPLE_FMT_FLT, 44100,
+						context->audioCodecContext->channel_layout, context->audioCodecContext->sample_fmt, context->audioCodecContext->sample_rate,
+						//context->audioCodecContext->channel_layout, frame.format, frame.sample_rate,
+						0, NULL
+					);
+					
+					swr_init(swr);
+			
+					int in_size = av_samples_get_buffer_size(NULL, in_nchannels, in_nsamples, in_sample_format, 1);
+					int out_size = av_samples_get_buffer_size(NULL, in_nchannels, in_nsamples, AV_SAMPLE_FMT_FLT, 1);
+					
+					buffer out_buffer = alloc_buffer_len(out_size);
+					
+					uint8_t *out = (uint8_t *)buffer_data(out_buffer);
+					
+					//const uint8_t *in = (uint8_t *)audioFrame.data[0];
+					
+					swr_convert(swr, &out, in_nsamples, (const uint8_t **)audioFrame.data, in_nsamples);
+					
+					swr_free(&swr);
+					
+					val_call1(emit_sound_callback, buffer_val(out_buffer));
+				}
+        
 			}
 		}
 		av_free_packet(&packet);
