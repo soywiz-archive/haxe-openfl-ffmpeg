@@ -1,0 +1,13 @@
+<project name="openfl-ffmpeg" url="https://github.com/soywiz/haxe-openfl-ffmpeg" license="MIT">
+    <user name="soywiz"/>
+	<tag v="openfl"/>
+	<tag v="cpp"/>
+	<tag v="neko"/>
+	<tag v="ffmpeg"/>
+	<tag v="formats"/>
+	<tag v="video"/>
+ 	<description>OPENFL haxe extensions for decoding videos and audio using ffmpeg.</description>
+    <version name="0.0.1">First release linked to ffmpeg 2.1.1</version>
+	<depends name="openfl"/>
+	<depends name="hxcpp"/>
+</project>

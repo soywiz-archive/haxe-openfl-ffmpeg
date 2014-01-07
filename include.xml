@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension>
+
+	<!--
+	<haxedef name="lime_html5" if="html5" />
+	<haxedef name="lime_native" if="native" />
+	<haxedef name="no-compilation" />
+
+	<section unless="display">
+
+		<haxelib name="hxlibc" if="cpp" />
+		
+		<ndll name="openal" register="false" if="android" />
+		<ndll name="libfreetype" register="false" if="emscripten" />
+
+		<ndll name="curl_ssl" register="false" if="ios" />
+		<ndll name="png" register="false" if="ios" />
+		<ndll name="jpeg" register="false" if="ios" />
+		<ndll name="freetype" register="false" if="ios" />
+		<ndll name="ogg" register="false" if="ios" />
+		<ndll name="vorbis" register="false" if="ios" />
+		
+		<ndll name="lime" />
+
+		<dependency name="extension-api" path="dependencies/extension-api" if="android" />
+		
+		<architecture name="armv7" if="android" />
+
+		<include haxelib="lime-tools" />
+		
+	</section>
+	
+	<templatePath name="templates" unless="openfl" />
+	<sample path="samples" />
+	-->
+
+	<section unless="display">
+
+		<haxelib name="hxlibc" if="cpp" />
+		
+		<ndll name="openfl-ffmpeg" />
+
+		<dependency name="extension-api" path="dependencies/extension-api" if="android" />
+		
+		<architecture name="armv7" if="android" />
+
+		<!--<include haxelib="openfl" />-->
+		
+	</section>
+
+</extension>
