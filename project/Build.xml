@@ -1,0 +1,66 @@
+<xml>
+
+<include name="${HXCPP}/build-tool/BuildCommon.xml"/>
+
+<set name="iphonesim" value="1" if="ios" />
+<set name="iphoneos" value="1" if="ios" unless="simulator" />
+
+<set name="mobile" value="1" if="iphone"/>
+<set name="mobile" value="1" if="android"/>
+<set name="mobile" value="1" if="webos"/>
+<set name="mobile" value="1" if="blackberry"/>
+<set name="mobile" value="1" if="gph"/>
+
+<set name="IOS_ARCH" value="-v7" if="HXCPP_ARMV7" />
+
+<set name="ndll-tool" value="dll" unless="iphone"/>
+<set name="ndll-tool" value="static" if="iphone"/>
+<set name="name_extra" value=".iphonesim" if="iphonesim"/>
+<set name="name_extra" value=".iphoneos${IOS_ARCH}" if="iphoneos"/>
+
+<set name="name_extra" value="-x86" if="simulator" unless="iphonesim" />
+<set name="name_prefix" value="lib" if="iphone" />
+
+<files id="common">
+
+	<depend name="${HXCPP}/include/hx/Macros.h"/>
+	<depend name="${HXCPP}/include/hx/CFFI.h"/>
+
+	<compilerflag value="-Iinclude" />
+	<compilerflag value="-I../libs.src/ffmpeg" />
+	<compilerflag value="-I../libs.src" />
+	<compilerflag value="-I${ANDROID_NDK_ROOT}/sources/cpufeatures" if="android"/>
+	
+	<compilerflag value="-Dinline=__inline" if="windows" />
+	<compilerflag value="-DWIN32" if="windows" />
+
+	<file name="common/ExternalInterface.cpp" />
+
+</files>
+	
+<target id="NDLL" output="${name_prefix}openfl-ffmpeg${name_extra}" tool="linker" toolid="${ndll-tool}">
+	<outdir name="../ndll/${BINDIR}" />
+	<ext value=".ndll" unless="mobile"/>
+	<files id="common" />	
+
+	<flag value="-libpath:../libs/Windows" if="windows"/>
+	<lib name="libavcodec.a" if="windows"/>
+	<lib name="libavdevice.a" if="windows"/>
+	<lib name="libavfilter.a" if="windows"/>
+	<lib name="libavformat.a" if="windows"/>
+	<lib name="libavutil.a" if="windows"/>
+	<lib name="libiconv.a" if="windows"/>
+	<lib name="libswresample.a" if="windows"/>
+	<lib name="libswscale.a" if="windows"/>
+	<lib name="Advapi32.lib" if="windows"/>
+	
+
+	<flag value="-L../libs/Linux" if="linux"/>
+	<lib name="-liconv" if="linux"/>
+</target>
+
+<target id="default">
+	<target id="NDLL"/>
+</target>
+
+</xml>
